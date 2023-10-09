@@ -1,0 +1,10 @@
+[Unit]
+Description=Resize the root filesystem to fill partition
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/resize2fs /dev/disk/by-partlabel/rootfs
+ExecStartPost=/usr/bin/systemctl disable resize2fs.service
+
+[Install]
+WantedBy=multi-user.target

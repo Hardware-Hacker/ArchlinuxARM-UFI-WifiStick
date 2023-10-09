@@ -1,0 +1,33 @@
+name: archlinux arm build nightly
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install make mkbootimg build-essential \
+            libncurses5-dev bison flex libssl-dev device-tree-compiler \
+            gcc-arm-none-eabi gcc-aarch64-linux-gnu bc libfdt-dev \
+            libarchive-tools arch-install-scripts qemu-user-static
+      - name: Initialization submodule
+        run: git submodule update --init
+      - name: Build packets
+        run: sudo bash build.sh
