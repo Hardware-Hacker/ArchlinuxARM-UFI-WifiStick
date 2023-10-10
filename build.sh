@@ -90,7 +90,9 @@ function config_rootfs()
 
 function pack_rootfs()
 {
+    cp -rp firmware $rootfs/usr/lib/firmware
     umount $rootfs
+
     tune2fs -M / $rootimg
     e2fsck -yf -E discard $rootimg
     resize2fs -M $rootimg
