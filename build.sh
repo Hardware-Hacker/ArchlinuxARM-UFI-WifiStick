@@ -34,8 +34,8 @@ function build_lk2nd()
 {
     cd lk2nd
     make TOOLCHAIN_PREFIX=arm-none-eabi- lk1st-msm8916 -j$[$(nproc) * 2]
+    cp -p build-lk1st-msm8916/emmc_appsboot.mbn ../$lk2ndimg
     cd -
-    cp -p lk2nd/build-lk1st-msm8916/emmc_appsboot.mbn $lk2ndimg
 }
 
 function build_linux()
@@ -43,7 +43,7 @@ function build_linux()
     cd linux
     make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- msm8916_defconfig
     make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$[$(nproc) * 2]
-    make INSTALL_MOD_PATH=$rootfs modules_install
+    make INSTALL_MOD_PATH=../$rootfs modules_install
     cd -
 }
 
@@ -111,12 +111,12 @@ set -ev
 mkdir -p build
 prepare_livecd
 prepare_rootfs
+config_rootfs
 
 build_lk2nd
 build_linux
 make_boot
 make_image
 
-config_rootfs
 pack_rootfs
 generate_checksum
