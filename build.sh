@@ -35,9 +35,9 @@ function make_image()
 function build_lk2nd()
 {
     cd lk2nd
-    make TOOLCHAIN_PREFIX=arm-none-eabi- lk2nd-msm8916 -j$[$(nproc) * 2]
+    make TOOLCHAIN_PREFIX=arm-none-eabi- lk1st-msm8916 -j$[$(nproc) * 2]
     cd -
-    cp -p lk2nd/build-lk2nd-msm8916/emmc_appsboot.mbn $lk2ndimg
+    cp -p lk2nd/build-lk1st-msm8916/emmc_appsboot.mbn $lk2ndimg
 }
 
 function build_linux()
