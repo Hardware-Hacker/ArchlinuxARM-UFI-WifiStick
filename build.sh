@@ -4,8 +4,8 @@ kerndtb="build/kernel-dtb"
 bootimg="build/boot.img"
 lk2ndimg="build/aboot.img"
 
-rootfs="build/rootfs"
-ramdisk="$rootfs/boot/initramfs-linux.img"
+livecd="build/livecd"
+rootfs="$livecd/mnt"
 rootimg="build/rootfs.img"
 
 function make_boot()
@@ -20,15 +20,13 @@ function make_image()
     unset options
     options+=" --base 0x80000000"
     options+=" --pagesize 2048"
-    options+=" --kernel_offset 0x00080000"
     options+=" --second_offset 0x00f00000"
     options+=" --tags_offset 0x01e00000"
-    options+=" --ramdisk_offset 0x02000000"
+    options+=" --kernel_offset 0x00080000"
     options+=" --kernel ${kerndtb}"
-    options+=" --ramdisk ${ramdisk}"
     options+=" -o ${bootimg}"
 
-    cmdline="earlycon root=PARTUUID=a7ab80e8-e9d1-e8cd-f157-93f69b1d141e console=ttyMSM0,115200 rw"
+    cmdline="earlycon console=ttyMSM0,115200 rootwait root=PARTUUID=a7ab80e8-e9d1-e8cd-f157-93f69b1d141e rw"
     mkbootimg --cmdline "${cmdline}" ${options}
 }
 
@@ -49,22 +47,45 @@ function build_linux()
     cd -
 }
 
-function prepare_rootfs()
+function prepare_livecd()
 {
     url="http://os.archlinuxarm.org/os/ArchLinuxARM-aarch64-latest.tar.gz"
-    rootpack="build/ArchLinuxARM-aarch64-latest.tar.gz"
+    livepack="build/ArchLinuxARM-aarch64-latest.tar.gz"
 
-    if [ ! -e $rootpack ]; then
-        curl -L -o $rootpack $url
+    if [ ! -e $livepack ]; then
+        curl -L -o $livepack $url
     fi
 
+    mkdir -p $livecd
+    mount --bind $livecd $livecd
+    bsdtar -xpf $livepack -C $livecd
+}
+
+function prepare_rootfs()
+{
     dd if=/dev/zero of=$rootimg bs=1MiB count=2048
     mkfs.ext4 $rootimg
+    mount $rootimg $rootfs
+}
 
-    mkdir -p $rootfs
-    mount -o loop $rootimg $rootfs
-    bsdtar -xpf $rootpack -C $rootfs
-    sync
+function config_rootfs()
+{
+    chrootdo="arch-chroot $livecd qemu-aarch64-static /bin/bash -c"
+    cp -p /usr/bin/qemu-aarch64-static $livecd/bin/qemu-aarch64-static
+
+    $chrootdo "pacman-key --init"
+    $chrootdo "pacman-key --populate archlinuxarm"
+    $chrootdo "pacman --noconfirm -Syy"
+    $chrootdo "pacman --noconfirm -S arch-install-scripts cloud-guest-utils"
+
+    $chrootdo "pacstrap -cGM /mnt $(cat config/packages.conf)"
+    $chrootdo "echo 'alarm' > /mnt/etc/hostname"
+    $chrootdo "echo 'LANG=C'> /mnt/etc/locale.conf"
+    $chrootdo "echo -n > /mnt/etc/machine-id"
+    $chrootdo "useradd -d /home/alarm -m -U alarm --root /mnt"
+    $chrootdo "echo -e 'root:root\nalarm:alarm' | chpasswd --root /mnt"
+    $chrootdo "usermod -a -G wheel alarm --root /mnt"
+    $chrootdo "systemctl --root=/mnt enable $(cat config/services.conf)"
 }
 
 function pack_rootfs()
@@ -72,7 +93,6 @@ function pack_rootfs()
     umount $rootfs
     tune2fs -M / $rootimg
     e2fsck -yf -E discard $rootimg
-
     resize2fs -M $rootimg
     e2fsck -yf $rootimg
     zstd $rootimg -o $rootimg.zst
@@ -87,12 +107,14 @@ function generate_checksum()
 
 set -ev
 mkdir -p build
-
+prepare_livecd
 prepare_rootfs
+
 build_lk2nd
 build_linux
-
 make_boot
 make_image
+
+config_rootfs
 pack_rootfs
 generate_checksum
