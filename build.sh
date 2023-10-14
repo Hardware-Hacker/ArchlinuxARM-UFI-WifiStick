@@ -40,6 +40,10 @@ function build_lk2nd()
 
 function build_linux()
 {
+    for file in patch/linux/*.patch; do
+        patch -N -p 1 -d linux <$file
+    done
+
     cd linux
     make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- msm8916_defconfig
     make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$[$(nproc) * 2]
