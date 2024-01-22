@@ -34,7 +34,7 @@ jobs:
             libarchive-tools arch-install-scripts qemu-user-static
 
       - name: Initialization submodule
-        run: git submodule update --init
+        run: git submodule update --init --depth=1
 
       - name: Build packets
         run: sudo bash ${{github.workspace}}/build.sh
