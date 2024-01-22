@@ -1,0 +1,42 @@
+From 98fd6fe4ed2abc4fa54e257a9407830d6b9df851 Mon Sep 17 00:00:00 2001
+From: John Sanpe <sanpeqf@gmail.com>
+Date: Mon, 22 Jan 2024 17:53:40 +0800
+Subject: [PATCH] msm8916 dtsi: increase upper limit cpu frequency
+
+Signed-off-by: John Sanpe <sanpeqf@gmail.com>
+---
+ arch/arm64/boot/dts/qcom/msm8916.dtsi | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/msm8916.dtsi b/arch/arm64/boot/dts/qcom/msm8916.dtsi
+index 876d597e688f..d596e4650402 100644
+--- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
+@@ -258,6 +258,24 @@ opp-800000000 {
+ 		opp-998400000 {
+ 			opp-hz = /bits/ 64 <998400000>;
+ 		};
++		opp-1094400000 {
++			opp-hz = /bits/ 64 <1094400000>;
++		};
++		opp-1152000000 {
++			opp-hz = /bits/ 64 <1152000000>;
++		};
++		opp-1209600000 {
++			opp-hz = /bits/ 64 <1209600000>;
++		};
++		opp-1248000000 {
++			opp-hz = /bits/ 64 <1248000000>;
++		};
++		opp-1363200000 {
++			opp-hz = /bits/ 64 <1363200000>;
++		};
++		opp-1401600000 {
++			opp-hz = /bits/ 64 <1401600000>;
++		};
+ 	};
+ 
+ 	firmware {
+-- 
+2.43.0
+
