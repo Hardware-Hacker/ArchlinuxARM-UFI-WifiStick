@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright(c) 2023 John Sanpe <sanpeqf@gmail.com>
+#
 
 kerndtb="build/kernel-dtb"
 bootimg="build/boot.img"
@@ -74,22 +78,34 @@ function prepare_rootfs()
 
 function config_rootfs()
 {
-    chrootdo="arch-chroot $livecd qemu-aarch64-static /bin/bash -c"
+    chlivedo="arch-chroot $livecd qemu-aarch64-static /bin/bash -c"
+    chrootdo="arch-chroot $rootfs qemu-aarch64-static /bin/bash -c"
+
     cp -p /usr/bin/qemu-aarch64-static $livecd/bin/qemu-aarch64-static
 
-    $chrootdo "pacman-key --init"
-    $chrootdo "pacman-key --populate archlinuxarm"
-    $chrootdo "pacman --noconfirm -Syy"
-    $chrootdo "pacman --noconfirm -S arch-install-scripts cloud-guest-utils"
+    # Initialize environment
+    $chlivedo "pacman-key --init"
+    $chlivedo "pacman-key --populate archlinuxarm"
+    $chlivedo "pacman --noconfirm -Syy"
+    $chlivedo "pacman --noconfirm -S arch-install-scripts cloud-guest-utils"
 
-    $chrootdo "pacstrap -cGM /mnt $(cat config/packages.conf)"
-    $chrootdo "echo 'alarm' > /mnt/etc/hostname"
-    $chrootdo "echo 'LANG=C'> /mnt/etc/locale.conf"
-    $chrootdo "echo -n > /mnt/etc/machine-id"
-    $chrootdo "useradd -d /home/alarm -m -U alarm --root /mnt"
-    $chrootdo "echo -e 'root:root\nalarm:alarm' | chpasswd --root /mnt"
-    $chrootdo "usermod -a -G wheel alarm --root /mnt"
-    $chrootdo "systemctl --root=/mnt enable $(cat config/services.conf)"
+    # Install basic rootfs
+    $chlivedo "pacstrap -cGM /mnt $(cat config/packages.conf)"
+    $chlivedo "echo 'alarm' > /mnt/etc/hostname"
+    $chlivedo "echo 'LANG=C'> /mnt/etc/locale.conf"
+    $chlivedo "echo -n > /mnt/etc/machine-id"
+
+    cp -p /usr/bin/qemu-aarch64-static $rootfs/bin/qemu-aarch64-static
+    cp -p config/resize2fs.service $rootfs/usr/lib/systemd/system
+
+    # Configure rootfs
+    $chrootdo "useradd -d /home/alarm -m -U alarm"
+    $chrootdo "echo -e 'root:root\nalarm:alarm' | chpasswd"
+    $chrootdo "usermod -a -G wheel alarm"
+    $chrootdo "systemctl enable $(cat config/services.conf)"
+
+    rm -rf $livecd/bin/qemu-aarch64-static
+    rm -rf $rootfs/bin/qemu-aarch64-static
 }
 
 function pack_rootfs()
