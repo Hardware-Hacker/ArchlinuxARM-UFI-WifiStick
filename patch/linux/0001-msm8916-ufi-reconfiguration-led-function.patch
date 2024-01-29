@@ -1,0 +1,41 @@
+From 29732e3663355f647ca7be365d67e943833f6ecb Mon Sep 17 00:00:00 2001
+From: John Sanpe <sanpeqf@gmail.com>
+Date: Mon, 29 Jan 2024 18:05:21 +0800
+Subject: [PATCH] msm8916 ufi: reconfiguration led function
+
+Signed-off-by: John Sanpe <sanpeqf@gmail.com>
+---
+ arch/arm64/boot/dts/qcom/msm8916-ufi.dtsi | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/qcom/msm8916-ufi.dtsi b/arch/arm64/boot/dts/qcom/msm8916-ufi.dtsi
+index c77ed04bb6c3..295419a86adc 100644
+--- a/arch/arm64/boot/dts/qcom/msm8916-ufi.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8916-ufi.dtsi
+@@ -45,20 +45,18 @@ leds {
+ 		 */
+ 		led_r: led-r {
+ 			color = <LED_COLOR_ID_RED>;
+-			default-state = "on";
+-			function = LED_FUNCTION_POWER;
++			function = LED_FUNCTION_PANIC;
+ 		};
+ 
+ 		led_g: led-g {
+ 			color = <LED_COLOR_ID_GREEN>;
+-			default-state = "off";
+ 			function = LED_FUNCTION_WLAN;
+ 		};
+ 
+ 		led_b: led-b {
+ 			color = <LED_COLOR_ID_BLUE>;
+-			default-state = "off";
+-			function = LED_FUNCTION_WAN;
++			function = LED_FUNCTION_CPU;
++			linux,default-trigger = "heartbeat";
+ 		};
+ 	};
+ };
+-- 
+2.43.0
+
