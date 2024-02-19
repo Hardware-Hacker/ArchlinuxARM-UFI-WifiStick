@@ -103,6 +103,8 @@ function config_rootfs()
     $chrootdo "echo -e 'root:root\nalarm:alarm' | chpasswd"
     $chrootdo "usermod -a -G wheel alarm"
     $chrootdo "systemctl enable $(cat config/services.conf)"
+    $chrootdo "pacman-key --init"
+    $chrootdo "pacman-key --populate archlinuxarm"
 
     rm -rf $livecd/bin/qemu-aarch64-static
     rm -rf $rootfs/bin/qemu-aarch64-static
