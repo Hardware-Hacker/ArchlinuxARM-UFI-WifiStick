@@ -88,19 +88,12 @@ function config_rootfs()
     $chlivedo "pacman-key --populate archlinuxarm"
     $chlivedo "pacman --noconfirm -Syy"
     $chlivedo "pacman --noconfirm -S arch-install-scripts cloud-guest-utils"
-    $chlivedo "pacman --noconfirm -S base-devel git"
 
     # Install basic rootfs
     $chlivedo "pacstrap -cGM /mnt $(cat config/packages.conf)"
     $chlivedo "echo 'alarm' > /mnt/etc/hostname"
     $chlivedo "echo 'LANG=C'> /mnt/etc/locale.conf"
     $chlivedo "echo -n > /mnt/etc/machine-id"
-
-    # Install user package
-    $chlivedo "cd /home/alarm && su alarm -c \"git clone https://aur.archlinux.org/xdbd-devel-git.git xdbd\""
-    $chlivedo "pacman --noconfirm -S cmake make gcc fakeroot"
-    $chlivedo "cd /home/alarm/xdbd && su alarm -c \"makepkg -s\""
-    $chlivedo "cd /home/alarm/xdbd && pacstrap -cGMU /mnt ./xdbd-devel-git-*"
 
     cp -p /usr/bin/qemu-aarch64-static $rootfs/bin/qemu-aarch64-static
     cp -p config/resize2fs.service $rootfs/usr/lib/systemd/system
