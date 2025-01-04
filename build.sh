@@ -4,6 +4,8 @@
 # Copyright(c) 2023 John Sanpe <sanpeqf@gmail.com>
 #
 
+# export https_proxy=http://192.168.31.7:7890 http_proxy=http://192.168.31.7:7890
+
 kerndtb="build/kernel-dtb"
 bootimg="build/boot.img"
 lk2ndimg="build/aboot.img"
@@ -20,14 +22,18 @@ function make_boot()
 }
 
 function make_image()
-{
+{    
+    kernel="linux/arch/arm64/boot/Image.gz"
+    dtbfile="linux/arch/arm64/boot/dts/qcom/msm8916-thwc-ufi001c.dtb"
+
     unset options
     options+=" --base 0x80000000"
     options+=" --pagesize 2048"
     options+=" --second_offset 0x00f00000"
     options+=" --tags_offset 0x01e00000"
     options+=" --kernel_offset 0x00080000"
-    options+=" --kernel ${kerndtb}"
+    options+=" --kernel ${kernel}"
+    options+=" --dtb ${dtbfile}"
     options+=" -o ${bootimg}"
 
     cmdline="earlycon console=ttyMSM0,115200 rootwait root=PARTUUID=a7ab80e8-e9d1-e8cd-f157-93f69b1d141e rw"
