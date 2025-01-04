@@ -50,6 +50,7 @@ jobs:
             ${{github.workspace}}/build/aboot.img.sha256sum
             ${{github.workspace}}/build/boot.img.sha256sum
             ${{github.workspace}}/build/rootfs.img.zst.sha256sum
+            ${{github.workspace}}/linux/arch/arm64/boot/Image.gz
       - name: Create release
         uses: softprops/action-gh-release@v1
         if: github.ref == 'refs/heads/master'
