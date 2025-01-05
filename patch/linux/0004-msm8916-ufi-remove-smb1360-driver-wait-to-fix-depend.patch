@@ -1,0 +1,26 @@
+From 3ffd389f07386d1ef22896ee7faa2439fe90e637 Mon Sep 17 00:00:00 2001
+From: fashion <fashion@openbfdev.com>
+Date: Mon, 6 Jan 2025 00:23:27 +0800
+Subject: [PATCH] msm8916 ufi: remove smb1360 driver, wait to fix dependence
+ with Kconfig regulator
+
+Signed-off-by: fashion <fashion@openbfdev.com>
+---
+ arch/arm64/configs/msm8916_defconfig | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/arch/arm64/configs/msm8916_defconfig b/arch/arm64/configs/msm8916_defconfig
+index e25c72b8e3fb..b144e991a446 100644
+--- a/arch/arm64/configs/msm8916_defconfig
++++ b/arch/arm64/configs/msm8916_defconfig
+@@ -835,7 +835,6 @@ CONFIG_PINCTRL_QCOM_SPMI_PMIC=y
+ CONFIG_POWER_RESET_MSM=y
+ CONFIG_POWER_RESET_QCOM_PON=y
+ CONFIG_BATTERY_MAX17042=m
+-CONFIG_SMB1360=m
+ CONFIG_BATTERY_PM8916_BMS_VM=m
+ CONFIG_CHARGER_PM8916_LBC=m
+ CONFIG_BATTERY_RT5033=m
+-- 
+2.43.0
+
