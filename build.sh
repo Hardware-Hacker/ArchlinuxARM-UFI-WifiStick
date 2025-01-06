@@ -76,6 +76,15 @@ function prepare_rootfs()
     mount $rootimg $rootfs
 }
 
+function install_aur_package()
+{
+    local name=$1
+    local url="https://aur.archlinux.org/$name.git"
+    $chlivedo "cd /home/alarm && su alarm -c \"git clone $url $name\""
+    $chlivedo "cd /home/alarm/$name && su alarm -c \"makepkg -s\""
+    $chlivedo "cd /home/alarm/$name && pacstrap -cGMU /mnt ./*.tar.zst"
+}
+
 function config_rootfs()
 {
     chlivedo="arch-chroot $livecd qemu-aarch64-static /bin/bash -c"
@@ -88,9 +97,17 @@ function config_rootfs()
     $chlivedo "pacman-key --populate archlinuxarm"
     $chlivedo "pacman --noconfirm -Syyu"
     $chlivedo "pacman --noconfirm -S arch-install-scripts cloud-guest-utils"
+    $chlivedo "pacman --noconfirm -S base-devel git"
 
     # Install basic rootfs
-    $chlivedo "pacstrap -cGM /mnt $(cat config/packages.conf)"
+    for package in $(cat config/*.pkg.conf); do
+        $chlivedo "pacstrap -cGM /mnt $package"
+    done
+
+    for package in $(cat config/*.aur.conf); do
+        install_aur_package $package
+    done
+
     $chlivedo "echo 'alarm' > /mnt/etc/hostname"
     $chlivedo "echo 'LANG=C'> /mnt/etc/locale.conf"
     $chlivedo "echo -n > /mnt/etc/machine-id"
